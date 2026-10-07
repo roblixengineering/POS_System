@@ -1,0 +1,21 @@
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      environment: { description: staging or production, required: true, default: staging }
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}   # configure required reviewers on "production" for the approval gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with: { version: 2.98.2 }
+      - name: Apply pending migrations
+        run: supabase db push --linked --password "$SUPABASE_DB_PASSWORD"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
+  # Web hosting: connect the repository to your host (e.g. Vercel / Netlify / a Node container) and let it
+  # build on push to main. Keep this migrate job as the gate that runs first. See docs/deployment.md.

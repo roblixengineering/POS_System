@@ -1,0 +1,44 @@
+# Supabase local development configuration (supabase CLI >= 1.200).
+# Run `npx supabase start` from the repository root.
+project_id = "cloud-pos"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[realtime]
+enabled = true
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false   # set true in production
+double_confirm_changes = true
+
+[auth.rate_limit]
+sign_in_sign_ups = 30          # per 5 min per IP; tighten for production
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"

@@ -1,0 +1,31 @@
+name: CI
+on:
+  pull_request:
+  push: { branches: [main] }
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with: { version: 2.98.2 }
+      - name: Apply every migration + seed to a fresh database
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector
+      - name: pgTAP (RLS isolation, atomic sale, refunds, append-only ledger)
+        run: supabase test db
